@@ -10,7 +10,7 @@ MassObject::MassObject(const sf::Vector2f position, const sf::Vector2f velocity,
 
 void MassObject::update(const float dt)
 {
-	pos += vel * dt;
+	//pos += vel * dt;
 
 	drawObj.setPosition(sf::Vector2f(pos.x - radius, pos.y - radius)); // Center circle
 }

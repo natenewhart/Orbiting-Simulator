@@ -39,6 +39,9 @@ int main()
 
 	TextDisplay menuText; 
 
+	std::vector<float> x;
+	x.reserve(2000);
+
 	while (window.isOpen())
 	{
 		deleteObject = false;
@@ -131,8 +134,10 @@ int main()
 
 		if (gameState == GameState::play)
 		{
-			const int physicsSubStepsPerFrame = static_cast<int>(std::fmax(1.0f, dt / PHYSICS_SUB_STEP_DELTATIME)); // Calculate how many sub steps per current frame
+			const int physicsSubStepsPerFrame = static_cast<int>(std::roundl(std::fmax(1.0f, dt / PHYSICS_SUB_STEP_DELTATIME))); // Calculate how many sub steps per current frame
 			const float dtPhysics = dt / physicsSubStepsPerFrame;                         // Correct delta time value for sub step updates
+
+			std::cout << physicsSubStepsPerFrame << "\n";
 
 			for (int i = 0; i < physicsSubStepsPerFrame; i++) // Updating all physics that needs to be done sub frame
 			{
@@ -160,9 +165,13 @@ int main()
 					}
 
 					// Apply total acceleration to object i
-					objectArray[i].vel += 0.5f * acceleration * dtPhysics;
+					//objectArray[i].vel += 0.5f * acceleration * dtPhysics;
+					//objectArray[i].update(dtPhysics);
+					//objectArray[i].vel += 0.5f * acceleration * dtPhysics;
+
+					objectArray[i].pos += objectArray[i].vel * dtPhysics + 0.5f * acceleration * dtPhysics * dtPhysics;
+					objectArray[i].vel += acceleration * dtPhysics;
 					objectArray[i].update(dtPhysics);
-					objectArray[i].vel += 0.5f * acceleration * dtPhysics;
 				}
 			}
 		}
@@ -173,6 +182,7 @@ int main()
 
 		for (const MassObject& obj : objectArray) // Draw all objects
 		{
+
 			window.draw(obj.drawObj);
 		}
 

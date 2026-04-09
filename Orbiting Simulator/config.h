@@ -7,7 +7,7 @@ constexpr float SCRH = 900;
 
 // Game
 
-constexpr int FPS = 1000;
+constexpr int FPS = 60;
 constexpr float PHYSICS_SUB_STEP_DELTATIME = 1.f / 200.f; // Delta time for physics sup stepping
 
 enum GameState
