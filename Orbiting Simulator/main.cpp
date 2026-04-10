@@ -134,6 +134,22 @@ int main()
 
 		if (gameState == GameState::play)
 		{
+			// Non-physics updates
+			if (deleteObject) // Deletion algorithm this deletes all objects touching mouse 
+			{
+				for (auto it = objectArray.begin(); it != objectArray.end();)
+				{
+					if (checkInCircle(rightClickMousePos, it->pos, it->radius))
+					{
+						it = objectArray.erase(it); // erase returns next valid iterator
+						deleteObject = false;
+						continue;
+					}
+					++it; // Iterate only if no deletion occured
+				}
+			}
+
+			// Physics updates
 			const int physicsSubStepsPerFrame = static_cast<int>(std::roundl(std::fmax(1.0f, dt / PHYSICS_SUB_STEP_DELTATIME))); // Calculate how many sub steps per current frame
 			const float dtPhysics = dt / physicsSubStepsPerFrame; // Correct delta time value for sub step updates
 
@@ -141,17 +157,7 @@ int main()
 			{
 				for (int i = 0; i < objectArray.size(); i++)
 				{
-					sf::Vector2f acceleration{0,0}; // Acceleration change on object
-
-					if (deleteObject)
-					{
-						if (checkInCircle(rightClickMousePos, objectArray[i].pos, objectArray[i].radius))
-						{
-							objectArray.erase(objectArray.begin() + i); // Remove object from list
-							deleteObject = false;
-							continue;
-						}
-					}
+					sf::Vector2f acceleration(0, 0); // Acceleration change on object
 
 					for (int j = 0; j < objectArray.size(); j++)
 					{
@@ -173,7 +179,7 @@ int main()
 
 		window.clear(sf::Color(20, 20, 20)); // Clear screen
 
-		for (const MassObject& obj : objectArray) // Draw all objects
+		for (MassObject& obj : objectArray) // Draw all objects
 		{
 			obj.update(); // Update position rect sfml
 			window.draw(obj.drawObj);
