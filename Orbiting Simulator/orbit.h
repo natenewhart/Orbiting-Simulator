@@ -12,6 +12,7 @@ public:
 	
 	sf::Vector2f pos; // Position center of object
 	sf::Vector2f vel;
+	sf::Vector2f acc; // Acceleration
 	
 	float mass;
 	

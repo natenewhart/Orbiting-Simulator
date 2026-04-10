@@ -3,7 +3,7 @@
 #include "config.h"
 
 MassObject::MassObject(sf::Vector2f position, sf::Vector2f velocity, float mass, int radius)
-	: pos(position), vel(velocity), mass(mass), radius(radius), color(255, 255, 255), drawObj(radius)
+	: pos(position), vel(velocity), acc(0.f, 0.f), mass(mass), radius(radius), color(255, 255, 255), drawObj(radius)
 {
 	drawObj.setFillColor(color);
 }

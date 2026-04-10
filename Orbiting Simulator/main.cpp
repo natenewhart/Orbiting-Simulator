@@ -119,19 +119,6 @@ int main()
 
 		// ----- Physics & Updates -----
 
-		for (int i = 0; i < objectArray.size(); i++)
-		{
-			if (deleteObject)
-			{
-				if (checkInCircle(rightClickMousePos, objectArray[i].pos, objectArray[i].radius))
-				{
-					objectArray.erase(objectArray.begin() + i); // Remove object from list
-					deleteObject = false;
-					continue;
-				}
-			}
-		}
-
 		if (gameState == GameState::play)
 		{
 			// Non-physics updates
@@ -142,11 +129,11 @@ int main()
 					if (checkInCircle(rightClickMousePos, it->pos, it->radius))
 					{
 						it = objectArray.erase(it); // erase returns next valid iterator
-						deleteObject = false;
 						continue;
 					}
 					++it; // Iterate only if no deletion occured
 				}
+				deleteObject = false;
 			}
 
 			// Physics updates
@@ -155,22 +142,26 @@ int main()
 
 			for (int i = 0; i < physicsSubStepsPerFrame; i++) // Updating all physics that needs to be done sub frame
 			{
-				for (int i = 0; i < objectArray.size(); i++)
+				// Accumilate all accelerations per physics sub frame
+				for (MassObject& currObj : objectArray)
 				{
-					sf::Vector2f acceleration(0, 0); // Acceleration change on object
-
-					for (int j = 0; j < objectArray.size(); j++)
+					sf::Vector2f currFrameAcceleration(0, 0);
+					for (MassObject& otherObj : objectArray) // Acceleration accumilation loop
 					{
-						if (i != j) // If second object isn't self
+						if (&otherObj != &currObj) // Skip exerting gravity on self
 						{
-							// Accumulate acceleration change
-							acceleration += exertGravity(objectArray[i].pos, objectArray[i].mass, objectArray[j].pos, objectArray[j].mass);
+							currFrameAcceleration += exertGravity(currObj.pos, currObj.mass, otherObj.pos, otherObj.mass);
 						}
 					}
+					currObj.acc = currFrameAcceleration;
+				}
 
+				// Update all objects based on current frames acceleration
+				for (MassObject& currObj : objectArray)
+				{
 					// Update each objects position and velocity
-					objectArray[i].pos += objectArray[i].vel * dtPhysics + 0.5f * acceleration * dtPhysics * dtPhysics;
-					objectArray[i].vel += acceleration * dtPhysics;
+					currObj.pos += currObj.vel * dtPhysics + 0.5f * currObj.acc * dtPhysics * dtPhysics;
+					currObj.vel += currObj.acc * dtPhysics;
 				}
 			}
 		}
