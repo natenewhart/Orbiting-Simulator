@@ -2,16 +2,14 @@
 #include "library.h"
 #include "config.h"
 
-MassObject::MassObject(const sf::Vector2f position, const sf::Vector2f velocity, const float mass, const int radius)
+MassObject::MassObject(sf::Vector2f position, sf::Vector2f velocity, float mass, int radius)
 	: pos(position), vel(velocity), mass(mass), radius(radius), color(255, 255, 255), drawObj(radius)
 {
 	drawObj.setFillColor(color);
 }
 
-void MassObject::update(const float dt)
+void MassObject::update()
 {
-	//pos += vel * dt;
-
 	drawObj.setPosition(sf::Vector2f(pos.x - radius, pos.y - radius)); // Center circle
 }
 
@@ -19,13 +17,11 @@ void MassObject::update(const float dt)
 
 float gravitationalForce(const sf::Vector2f p1, const float m1, const sf::Vector2f p2, const float m2)
 {
-	const float r = std::sqrtf((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y)); // Distance between objects
-	float force = 0.f;
+	const float rSquared = (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y); // Distance between objects squared
 
-	if (!aproxEqual(r, 0)) // Check for distance being near 0
-		force = (GRAVITATIONAL_MULTIPLIER * m1 * m2) / (r * r); // The force of gravity
-
-	return force;
+	if (!aproxEqual(rSquared, 0)) // Check for distance being near 0
+		return (GRAVITATIONAL_MULTIPLIER * m1 * m2) / rSquared; // The force of gravity
+	else return 0.f;
 }
 
 sf::Vector2f exertGravity(const sf::Vector2f p1, const float m1, const sf::Vector2f p2, const float m2)

@@ -4,9 +4,9 @@
 class MassObject // Object effected by gravity and renderable on screen
 {
 public:
-	MassObject(const sf::Vector2f position = sf::Vector2f(0, 0), const sf::Vector2f velocity = sf::Vector2f(0, 0), const float mass = 100, const int radius = 20);
+	MassObject(sf::Vector2f position = sf::Vector2f(0, 0), sf::Vector2f velocity = sf::Vector2f(0, 0), float mass = 100, int radius = 20);
 
-	void update(const float dt); // Update position of object
+	void update(); // Update position of object
 
 	// ---- Variables -----
 	
