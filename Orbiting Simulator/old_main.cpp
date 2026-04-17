@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <print>
 #include <chrono>
 
 // Local Includes
@@ -22,31 +21,26 @@ int main()
 	MassObject b(sf::Vector2f(SCRW / 2, SCRH / 2));
 
 	a.vel.x = 100;
-	a.mass  = 300;
-	b.mass  = 10000;
+	a.mass = 300;
+	b.mass = 10000;
 
-	std::vector<MassObject> objectArray{a, b};
+	std::vector<MassObject> objectArray{ a, b };
 
 	// Object spawning and deleting variables
 
 	sf::Vector2f mousePos(0, 0);          // Live mouse position
-	sf::Vector2f rightClickMousePos(0,0); // Last mouse position when right clicked
+	sf::Vector2f rightClickMousePos(0, 0); // Last mouse position when right clicked
 	sf::Vector2f leftClickMousePos(0, 0); // Last position of mouse when left clicked
 	bool deleteObject = false;   // Check if user has tried to delete object using right click
 	bool leftClicking = false;   // Is always true while left clicking
 
-	sf::Vector2f spawnVel(0,0); // Velocity of spawned objects
+	sf::Vector2f spawnVel(0, 0); // Velocity of spawned objects
 	float spawnMass = 100;      // Mass of spawned objects
 
-	TextDisplay menuText; 
+	TextDisplay menuText;
 
 	std::vector<float> x;
 	x.reserve(2000);
-
-	// NEW PHYSICS IMPLEMENTATION
-	constexpr float cPhysicsSubstep = 1 / 100.f;
-	float elapsedGameTime = 0;
-	float elapsedPhysicsTime = 0;
 
 	while (window.isOpen())
 	{
@@ -143,10 +137,11 @@ int main()
 			}
 
 			// Physics updates
-			elapsedGameTime += dt; // Accumulate total elapsed game time
-			while (elapsedGameTime - elapsedPhysicsTime >= cPhysicsSubstep) // Updating all physics that needs to be done sub frame
+			const int physicsSubStepsPerFrame = static_cast<int>(std::roundl(std::fmax(1.0f, dt / PHYSICS_SUB_STEP_DELTATIME))); // Calculate how many sub steps per current frame
+			const float dtPhysics = dt / physicsSubStepsPerFrame; // Correct delta time value for sub step updates
+
+			for (int i = 0; i < physicsSubStepsPerFrame; i++) // Updating all physics that needs to be done sub frame
 			{
-				float dtPhysics = cPhysicsSubstep; // Correct delta time value for sub step updates
 				// Accumilate all accelerations per physics sub frame
 				for (MassObject& currObj : objectArray)
 				{
@@ -168,8 +163,6 @@ int main()
 					currObj.pos += currObj.vel * dtPhysics + 0.5f * currObj.acc * dtPhysics * dtPhysics;
 					currObj.vel += currObj.acc * dtPhysics;
 				}
-
-				elapsedPhysicsTime += dtPhysics;
 			}
 		}
 
