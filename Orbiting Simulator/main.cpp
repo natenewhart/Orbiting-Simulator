@@ -141,18 +141,23 @@ int main()
 			while (elapsedGameTime - elapsedPhysicsTime >= PHYSICS_SUB_STEP_DELTATIME) // Updating all physics that needs to be done sub frame
 			{
 				float dtPhysics = PHYSICS_SUB_STEP_DELTATIME; // Correct delta time value for sub step updates
-				// Accumilate all accelerations per physics sub frame
-				for (MassObject& currObj : objectArray)
+
+				for (int i = 0; i < objectArray.size(); i++)
 				{
-					sf::Vector2f currFrameAcceleration(0, 0);
-					for (MassObject& otherObj : objectArray) // Acceleration accumilation loop
+					auto& currObj = objectArray[i];
+					//currObj.acc = sf::Vector2f(0.f, 0.f); // Reset acceleration each frame
+					for (int j = i + 1; j < objectArray.size(); j++)
 					{
-						if (&otherObj != &currObj) // Skip exerting gravity on self
-						{
-							currFrameAcceleration += exertGravity(currObj.pos, currObj.mass, otherObj.pos, otherObj.mass);
-						}
+						auto& otherObj   = objectArray[j];
+						float gravFactor = calcGravFactor(currObj.pos, otherObj.pos);
+						if (gravFactor > MAXIMUM_GRAVITATIONAL_FORCE)
+							continue;
+
+						sf::Vector2f gravDirection = normalizeVector2f(otherObj.pos - currObj.pos);
+
+						currObj.acc  +=  1.f * gravDirection * gravFactor * otherObj.mass;
+						otherObj.acc += -1.f * gravDirection * gravFactor * currObj.mass;
 					}
-					currObj.acc = currFrameAcceleration;
 				}
 
 				// Update all objects based on current frames acceleration
@@ -161,10 +166,14 @@ int main()
 					// Update each objects position and velocity
 					currObj.pos += currObj.vel * dtPhysics + 0.5f * currObj.acc * dtPhysics * dtPhysics;
 					currObj.vel += currObj.acc * dtPhysics;
-				}
 
+					currObj.acc = {0.f, 0.f}; // Reset acceleration to zero after every physics step
+				}
 				elapsedPhysicsTime += dtPhysics;
 			}
+			// Reset accumulators to prevent float precision loss
+			elapsedGameTime -= elapsedPhysicsTime;
+			elapsedPhysicsTime = 0;
 
 			// Final Mass Object Position Updates
 			for (MassObject& obj : objectArray) // Draw all objects

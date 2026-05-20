@@ -7,7 +7,7 @@ constexpr float SCRH = 900;
 
 // Game
 
-constexpr int FPS = 60; // Game RENDER FPS
+constexpr int FPS = 120; // Game RENDER FPS
 constexpr float PHYSICS_SUB_STEP_DELTATIME = 1.f / 100.f; // Physics updates time step (seconds)
 constexpr float MAX_DELTA_TIME = 1.f; // Maximum delta time to prevent "spiral of death"
 
@@ -20,5 +20,5 @@ enum GameState
 
 // Physics Constants
 
-constexpr float GRAVITATIONAL_MULTIPLIER = 300.f;
+constexpr float GRAVITATIONAL_CONSTANT = 300.f;
 constexpr float MAXIMUM_GRAVITATIONAL_FORCE = 10e+6f;

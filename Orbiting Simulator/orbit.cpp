@@ -15,17 +15,12 @@ void MassObject::update()
 
 // -------- Orbiting Functions ----------
 
-float gravitationalForce(const sf::Vector2f p1, const float m1, const sf::Vector2f p2, const float m2)
+static inline float distanceSquared(sf::Vector2f p1, sf::Vector2f p2)
 {
-	const float rSquared = (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y); // Distance between objects squared
-
-	if (!aproxEqual(rSquared, 0)) // Check for distance being near 0
-		return (GRAVITATIONAL_MULTIPLIER * m1 * m2) / rSquared; // The force of gravity
-	else return 0.f;
+	return (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y);
 }
 
-sf::Vector2f exertGravity(const sf::Vector2f p1, const float m1, const sf::Vector2f p2, const float m2)
+float calcGravFactor(sf::Vector2f p1, sf::Vector2f p2)
 {
-	sf::Vector2f forceVect = normalizeVector2f(p2 - p1) * gravitationalForce(p1, m1, p2, m2); // Vector in direction of p2 with magnitude of gravitational force
-	return forceVect / m1; // To find acceleration vector divide by mass of the object
+	return GRAVITATIONAL_CONSTANT / distanceSquared(p1, p2);
 }

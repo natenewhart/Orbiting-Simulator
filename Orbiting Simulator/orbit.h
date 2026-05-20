@@ -23,7 +23,4 @@ public:
 
 // -------- Orbiting Functions ----------
 
-float gravitationalForce(const sf::Vector2f p1, const float m1, const sf::Vector2f p2, const float m2); // Calculate and return gravitational force
-
-sf::Vector2f exertGravity(const sf::Vector2f p1, const float m1, const sf::Vector2f p2, const float m2); // Return acceleration vector to be applied to object 1 given the mass and pos of object 2
-
+float calcGravFactor(sf::Vector2f p1, sf::Vector2f p2); // Calculate G / r^2. Multiply by any mass to get the gravitational field strength
