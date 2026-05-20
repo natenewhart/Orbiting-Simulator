@@ -16,8 +16,7 @@ int main()
 
 	GameState gameState = GameState::play; // Current state of game
 
-	DeltaTimeCalculator deltaTimeCalc;
-
+	// Initial objects and conditions
 	MassObject a(sf::Vector2f(300, 300));
 	MassObject b(sf::Vector2f(SCRW / 2, SCRH / 2));
 
@@ -28,7 +27,6 @@ int main()
 	std::vector<MassObject> objectArray{a, b};
 
 	// Object spawning and deleting variables
-
 	sf::Vector2f mousePos(0, 0);          // Live mouse position
 	sf::Vector2f rightClickMousePos(0,0); // Last mouse position when right clicked
 	sf::Vector2f leftClickMousePos(0, 0); // Last position of mouse when left clicked
@@ -38,25 +36,22 @@ int main()
 	sf::Vector2f spawnVel(0,0); // Velocity of spawned objects
 	float spawnMass = 100;      // Mass of spawned objects
 
-	TextDisplay menuText; 
+	TextDisplay menuText;
 
-	std::vector<float> x;
-	x.reserve(2000);
-
-	// NEW PHYSICS IMPLEMENTATION
-	constexpr float cPhysicsSubstep = 1 / 100.f;
+	// Game time variables for physics sub stepping
+	DeltaTimeCalculator deltaTimeCalc;
 	float elapsedGameTime = 0;
 	float elapsedPhysicsTime = 0;
 
 	while (window.isOpen())
 	{
 		deleteObject = false;
-		const float dt = deltaTimeCalc.getDeltaTime(); // Get delta time
+		const float dt = std::min(MAX_DELTA_TIME, deltaTimeCalc.getDeltaTime()); // Get delta time
 
 		mousePos.x = sf::Mouse::getPosition(window).x; // Update mouse pos
 		mousePos.y = sf::Mouse::getPosition(window).y;
 
-		// ----- Updates -----
+		// ----- Even Updates -----
 
 		sf::Event event;
 		while (window.pollEvent(event)) // Handle events
@@ -123,11 +118,10 @@ int main()
 			}
 		}
 
-		// ----- Physics & Updates -----
+		// ----- Physics & Game Updates -----
 
 		if (gameState == GameState::play)
 		{
-			// Non-physics updates
 			if (deleteObject) // Deletion algorithm this deletes all objects touching mouse 
 			{
 				for (auto it = objectArray.begin(); it != objectArray.end();)
@@ -142,11 +136,11 @@ int main()
 				deleteObject = false;
 			}
 
-			// Physics updates
+			// Physics Loop
 			elapsedGameTime += dt; // Accumulate total elapsed game time
-			while (elapsedGameTime - elapsedPhysicsTime >= cPhysicsSubstep) // Updating all physics that needs to be done sub frame
+			while (elapsedGameTime - elapsedPhysicsTime >= PHYSICS_SUB_STEP_DELTATIME) // Updating all physics that needs to be done sub frame
 			{
-				float dtPhysics = cPhysicsSubstep; // Correct delta time value for sub step updates
+				float dtPhysics = PHYSICS_SUB_STEP_DELTATIME; // Correct delta time value for sub step updates
 				// Accumilate all accelerations per physics sub frame
 				for (MassObject& currObj : objectArray)
 				{
@@ -171,6 +165,12 @@ int main()
 
 				elapsedPhysicsTime += dtPhysics;
 			}
+
+			// Final Mass Object Position Updates
+			for (MassObject& obj : objectArray) // Draw all objects
+			{
+				obj.update(); // Update position rect sfml
+			}
 		}
 
 		// ----- Rendering -----
@@ -179,11 +179,10 @@ int main()
 
 		for (MassObject& obj : objectArray) // Draw all objects
 		{
-			obj.update(); // Update position rect sfml
 			window.draw(obj.drawObj);
 		}
 
-		// ---- Menus ----
+		// ---- Game State Menus ----
 
 		drawSpawnMass(window, menuText, spawnMass); // Display mass on the screen
 		drawSpawnMagnitude(window, menuText, leftClickMousePos, mousePos, leftClicking);

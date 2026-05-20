@@ -43,4 +43,3 @@ void drawSpawnMass(sf::RenderWindow& window, TextDisplay& textDisplay, const flo
 
 void drawSpawnMagnitude(sf::RenderWindow& window, TextDisplay& textDisplay, const sf::Vector2f p1, const sf::Vector2f p2, const bool leftClicking);
 
-//void updatePositionAndVelocityConstAcceleration(sf::Vector2f pos, sf::Vector2f vel, sf::Vector);
