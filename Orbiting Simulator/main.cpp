@@ -9,6 +9,9 @@
 #include "library.h"
 #include "orbit.h"
 
+static inline void gameRender(sf::RenderWindow& window, GameState gameState, std::vector<MassObject>& objectArray, TextDisplay& menuText, sf::Vector2f leftClickMousePos, sf::Vector2f mousePos, bool leftClicking, float spawnMass);
+static inline void gameUpdatePhysics(float& elapsedGameTime, float& elapsedPhysicsTime, float dt, std::vector<MassObject>& objectArray);
+
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(SCRW, SCRH), "Orbit Simulator");
@@ -136,84 +139,93 @@ int main()
 				deleteObject = false;
 			}
 
-			// Physics Loop
-			elapsedGameTime += dt; // Accumulate total elapsed game time
-			while (elapsedGameTime - elapsedPhysicsTime >= PHYSICS_SUB_STEP_DELTATIME) // Updating all physics that needs to be done sub frame
-			{
-				float dtPhysics = PHYSICS_SUB_STEP_DELTATIME; // Correct delta time value for sub step updates
-
-				for (int i = 0; i < objectArray.size(); i++)
-				{
-					auto& currObj = objectArray[i];
-					//currObj.acc = sf::Vector2f(0.f, 0.f); // Reset acceleration each frame
-					for (int j = i + 1; j < objectArray.size(); j++)
-					{
-						auto& otherObj   = objectArray[j];
-						float gravFactor = calcGravFactor(currObj.pos, otherObj.pos);
-						if (gravFactor > MAXIMUM_GRAVITATIONAL_FORCE)
-							continue;
-
-						sf::Vector2f gravDirection = normalizeVector2f(otherObj.pos - currObj.pos);
-
-						currObj.acc  +=  1.f * gravDirection * gravFactor * otherObj.mass;
-						otherObj.acc += -1.f * gravDirection * gravFactor * currObj.mass;
-					}
-				}
-
-				// Update all objects based on current frames acceleration
-				for (MassObject& currObj : objectArray)
-				{
-					// Update each objects position and velocity
-					currObj.pos += currObj.vel * dtPhysics + 0.5f * currObj.acc * dtPhysics * dtPhysics;
-					currObj.vel += currObj.acc * dtPhysics;
-
-					currObj.acc = {0.f, 0.f}; // Reset acceleration to zero after every physics step
-				}
-				elapsedPhysicsTime += dtPhysics;
-			}
-			// Reset accumulators to prevent float precision loss
-			elapsedGameTime -= elapsedPhysicsTime;
-			elapsedPhysicsTime = 0;
-
-			// Final Mass Object Position Updates
-			for (MassObject& obj : objectArray) // Draw all objects
-			{
-				obj.update(); // Update position rect sfml
-			}
+			gameUpdatePhysics(elapsedGameTime, elapsedPhysicsTime, dt, objectArray);
 		}
 
 		// ----- Rendering -----
 
 		window.clear(sf::Color(20, 20, 20)); // Clear screen
 
-		for (MassObject& obj : objectArray) // Draw all objects
-		{
-			window.draw(obj.drawObj);
-		}
-
-		// ---- Game State Menus ----
-
-		drawSpawnMass(window, menuText, spawnMass); // Display mass on the screen
-		drawSpawnMagnitude(window, menuText, leftClickMousePos, mousePos, leftClicking);
-
-		switch (gameState)
-		{
-		case GameState::play:
-
-			if (leftClicking)
-			{
-				drawObjectArrow(window, leftClickMousePos, mousePos);
-			}
-			break;
-
-		case GameState::pause:
-
-			drawScreenOverlay(window);
-			break;
-		}
+		gameRender(window, gameState, objectArray, menuText, leftClickMousePos, mousePos, leftClicking, spawnMass);
 
 		window.display();
 	}
 
 	return 0;
+}
+
+inline void gameRender(sf::RenderWindow& window, GameState gameState, std::vector<MassObject>& objectArray, TextDisplay& menuText, sf::Vector2f leftClickMousePos, sf::Vector2f mousePos, bool leftClicking, float spawnMass)
+{
+	for (MassObject& obj : objectArray) // Draw all objects
+	{
+		window.draw(obj.drawObj);
+	}
+
+	// ---- Game State Menus ----
+
+	drawSpawnMass(window, menuText, spawnMass); // Display mass on the screen
+	drawSpawnMagnitude(window, menuText, leftClickMousePos, mousePos, leftClicking);
+
+	switch (gameState)
+	{
+	case GameState::play:
+
+		if (leftClicking)
+		{
+			drawObjectArrow(window, leftClickMousePos, mousePos);
+		}
+		break;
+
+	case GameState::pause:
+
+		drawScreenOverlay(window);
+		break;
+	}
+}
+
+inline void gameUpdatePhysics(float& elapsedGameTime, float& elapsedPhysicsTime, float dt, std::vector<MassObject>& objectArray)
+{
+	elapsedGameTime += dt; // Accumulate total elapsed game time
+	while (elapsedGameTime - elapsedPhysicsTime >= PHYSICS_SUB_STEP_DELTATIME) // Updating all physics that needs to be done sub frame
+	{
+		float dtPhysics = PHYSICS_SUB_STEP_DELTATIME; // Correct delta time value for sub step updates
+
+		for (int i = 0; i < objectArray.size(); i++)
+		{
+			auto& currObj = objectArray[i];
+			//currObj.acc = sf::Vector2f(0.f, 0.f); // Reset acceleration each frame
+			for (int j = i + 1; j < objectArray.size(); j++)
+			{
+				auto& otherObj = objectArray[j];
+				float gravFactor = calcGravFactor(currObj.pos, otherObj.pos);
+				if (gravFactor > MAXIMUM_GRAVITATIONAL_FORCE)
+					continue;
+
+				sf::Vector2f gravDirection = normalizeVector2f(otherObj.pos - currObj.pos);
+
+				currObj.acc += 1.f * gravDirection * gravFactor * otherObj.mass;
+				otherObj.acc += -1.f * gravDirection * gravFactor * currObj.mass;
+			}
+		}
+
+		// Update all objects based on current frames acceleration
+		for (MassObject& currObj : objectArray)
+		{
+			// Update each objects position and velocity
+			currObj.pos += currObj.vel * dtPhysics + 0.5f * currObj.acc * dtPhysics * dtPhysics;
+			currObj.vel += currObj.acc * dtPhysics;
+
+			currObj.acc = { 0.f, 0.f }; // Reset acceleration to zero after every physics step
+		}
+		elapsedPhysicsTime += dtPhysics;
+	}
+	// Reset accumulators to prevent float precision loss
+	elapsedGameTime -= elapsedPhysicsTime;
+	elapsedPhysicsTime = 0;
+
+	// Final Mass Object Position Updates
+	for (MassObject& obj : objectArray) // Draw all objects
+	{
+		obj.update(); // Update position rect sfml
+	}
 }
