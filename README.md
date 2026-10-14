@@ -33,11 +33,15 @@ Make sure you have Visual Studio 2022 or later installed, along with the C++ pac
 - **Esc** to pause and unpause the game
 
 ## Gameplay
+NOTE: video may show performance artifacts due to GitHub and compression that were not there during filming, such as frame stutters and lag.
+https://github.com/user-attachments/assets/e85e67ca-8907-447d-af90-2cf91022123a
+
+Photos:
 <img width="1002" height="932" alt="Screenshot 2026-08-23 193233" src="https://github.com/user-attachments/assets/58655572-75f7-4841-bf55-5c620566caad" />
 <img width="1002" height="932" alt="Screenshot 2026-08-23 193226" src="https://github.com/user-attachments/assets/7b08d81b-327b-45c3-b55d-a7a535eae9dc" />
 <img width="1002" height="932" alt="Screenshot 2026-08-23 193246" src="https://github.com/user-attachments/assets/bf7a3069-a489-41f8-9ced-77993434c11d" />
 
-
+https://github.com/user-attachments/assets/e85e67ca-8907-447d-af90-2cf91022123a
 ## License
 
 COMING SOON...
