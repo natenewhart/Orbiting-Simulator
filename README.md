@@ -34,6 +34,7 @@ Make sure you have Visual Studio 2022 or later installed, along with the C++ pac
 
 ## Gameplay
 NOTE: video may show performance artifacts due to GitHub and compression that were not there during filming, such as frame stutters and lag.
+
 https://github.com/user-attachments/assets/e85e67ca-8907-447d-af90-2cf91022123a
 
 Photos:
