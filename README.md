@@ -1,6 +1,6 @@
 # Orbiting Simulator
 
-This is a 2D gravity simulation built from scratch using C++ and the SFML library, where point masses attract each other and you can spawn new bodies to watch them orbit.
+This is a 2D gravity simulation built from scratch using C++ and the SFML library. Point mass generation with gravity and initial velocity.
 
 ## Features
 
